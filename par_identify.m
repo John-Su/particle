@@ -38,9 +38,6 @@ while max(max(img))>threshold
         [x,y] = clean(x,y,img);
 %         [pic_temp,X,Y,w_size] = Flmax(img,x,y,threshold,template);
         [pic_temp,X,Y,w_size] = Drop(img,x,y,threshold,theta);
-        if (w_size > 20)
-            X;
-        end
         if debug
             plot(y,x,'ro');
             plot(Y,X,'go');
