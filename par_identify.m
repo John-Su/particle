@@ -1,4 +1,4 @@
-function [pos,r,img,num] = par_identify(img,theta)
+function [pos,r,img,num] = par_identify(img,theta, meanPic)
 
     
 debug = 0;
@@ -21,15 +21,16 @@ threshold_org = max(max(img))*0.3;
 
 % threshold= threshold_org; %max(max(img))*0.27;
 threshold = graythresh(img/max(img(:)))*max(img(:));
-% img(img<min(img(:))*1.1) = min(threshold,mean(org(:)));
-% org = img;
-% threshold = graythresh(img/max(img(:)))*max(img(:));
+img(img<min(img(:))*1.1) = min(threshold,mean(org(:)));
+org = img;
+threshold = graythresh(img/max(img(:)))*max(img(:));
 ercount = 0;
 iter = 100;
 shift = (size(template)-1)/2;
 shift = shift(1);
-
-while max(max(img))>threshold 
+[a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
+% tic;
+while a(end)>40
         img_conv = conv2(img,template,'same');
 %         img_conv = xcorr2(img,template);
         [x,y] = ind2sub(size(img_conv),find(img_conv == max(max(img_conv))));
@@ -37,7 +38,7 @@ while max(max(img))>threshold
 %         plot(y,x,'ro')
         [x,y] = clean(x,y,img);
 %         [pic_temp,X,Y,w_size] = Flmax(img,x,y,threshold,template);
-        [pic_temp,X,Y,w_size] = Drop(img,x,y,threshold,theta);
+        [pic_temp,X,Y,w_size] = Drop(org,img,x,y,threshold,theta);
         if debug
             plot(y,x,'ro');
             plot(Y,X,'go');
@@ -58,17 +59,17 @@ while max(max(img))>threshold
             continue;
             
         end
-        if mod((size(pos,1)) ,10) == 0
+        if mod((size(pos,1)) ,50) == 1
             disp(size(pos,1));
         end
         
         img = img-pic_temp;
-        if w_size>=1
+        if w_size>=1 && org(floor(X),floor(Y)) - meanPic(floor(X),floor(Y)) > threshold
             pos = [pos;[X,Y]];
             r = [r;w_size];
         end
     
- 
+     [a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
     
 %     disp(length(pos));
     if length(pos) < 200 && max(max(img)) <= threshold
@@ -82,7 +83,7 @@ while max(max(img))>threshold
 %     disp(size(pos));
 %     imshow(uint16(img*20));
 end
-
+%         disp('identifying particles takes up:');
     num = size(pos,1);
-    img;     
+% toc;
             

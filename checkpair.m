@@ -1,9 +1,9 @@
 clear;
 clear;    
 % rootPath = 'G:\0Experiments\particles\20170825\phase1_near\case4\speed1_6cm_60m\';
-% rootPath = 'G:\0Experiments\particles\20170825\phase1_near\case4\speed1_6cm_80m\';
+rootPath = 'G:\0Experiments\particles\20170825\phase1_near\speed1_80m\';
 % rootPath = 'H:\0Experiment\case4\speed1_6cm_60m\';
-rootPath = 'H:\0Experiments\particles\20170825\phase1_near\speed2_100m\';
+% rootPath = 'H:\0Experiments\particles\20170825\phase1_near\speed2_100m\';
 preCalibPath = 'G:\0Experiments\particles\20170825\phase1_near\case4\speed1_6cm_60m\';
 resultPath = [rootPath,'result'];
 mkdir(resultPath);
@@ -135,18 +135,18 @@ for pic_num = start:stopt %950:1000
 if exist('points_B','var')
     frame_A = frame_B;
     frame_B = double(imread([picPath , pic(pic_num+1).name]));
-    frame_B = frame_B -meanPic;
+%     frame_B = frame_B -meanPic;
     [gray,b] = hist(frame_B(:));
     if (gray(end) < 1000)
         continue;
     end
-     frame_B = frame_B +meanPic;
+%      frame_B = frame_B +meanPic;
     points_A = points_B;
     r1 = r2;
     savetemp = [points_A,r1];
     save([resultPath,'\points','_',num2str(pic_num)],'savetemp');
     tic;
-        [points_B,r2] = par_identify(frame_B,theta);
+        [points_B,r2] = par_identify(frame_B,theta, meanPic);
         points_B(r2<1.5,:) = [];
         r2(r2<1.5) = [];
         disp('identifying particles takes up:');
@@ -158,18 +158,21 @@ else
     %     frame_B = A;
     frame_A = double(imread([picPath , pic(pic_num).name]));
     frame_B = double(imread([picPath , pic(pic_num+1).name]));
-    frame_A = frame_A - meanPic;
+%     frame_A = frame_A - meanPic;
     [gray,b] = hist(frame_A(:));
     if (gray(end) < 1000)
         continue;
     end
 %     frame_A = frame_A + meanPic;
-    [points_A,r1] = par_identify(frame_A,theta); 
+    tic;
+    [points_A,r1] = par_identify(frame_A,theta, meanPic); 
+    disp('identifying particles takes up: ');
+    toc;
     points_A(r1<1.5,:) = [];
     r1(r1<1.5) = [];
     savetemp = [points_A,r1];
     save([resultPath,'\points','_',num2str(pic_num)],'savetemp');
-    [points_B,r2] = par_identify(frame_B,theta);
+    [points_B,r2] = par_identify(frame_B,theta, meanPic);
     points_B(r2<1.5,:) = [];
     r2(r2<1.5) = [];
    
@@ -231,8 +234,13 @@ rd = 1;
 tic;
 for I = start:pic_num-1
     if isempty(find(ruleOut == I))
-        load([matPath, '\trace_', int2str(I), '.mat']);
-        load([matPath,'\fpos_', int2str(I),'.mat']);
+        try
+            load([matPath, '\trace_', int2str(I), '.mat']);
+            load([matPath,'\fpos_', int2str(I),'.mat']);
+        catch
+            ruleOut = [ruleOut,I];
+            continue;
+        end
         pre = size(start_a,2);
         if (I == start)
             disp(size(start_a));

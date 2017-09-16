@@ -1,53 +1,55 @@
-function [pic_temp,X,Y,pa_size] = Drop(org,x,y,thresh,theta)
+function [pic_temp,X,Y,pa_size] = Drop(org,img,x,y,thresh,theta)
 assert(size(theta,1) == 360 && size(theta,2) == 3);
 r = 15;
 temp = [];
-x1 = x;
-y1 = y;
+tempReal = [];
+% x1 = x;
+% y1 = y;
 x = floor(mean(x));
 y = floor(mean(y));
-peak = org(x,y);
-for I = max(1,x-3):min(1024,x+3)
-    for J = max(1,y-3):min(1024,y+3)
-        if org(I,J) > peak
-            x = I;
-            y = J;
-            peak = org(x,y);
-        end
+% peak = img(x,y);
+% for I = max(1,x-3):min(1024,x+3)
+%     for J = max(1,y-3):min(1024,y+3)
+%         if org(I,J) > peak
+%             x1 = I;
+%             y1 = J;
+%             peak = img(x,y);
+%         end
+%     end
+% end
+% x=x1;
+% y=y1;
+tic;
+if floor(x-r) < 1
+    if floor(y-r) < 1
+        temp_particle = org(1 : 1+r, 1 : 1+r);
+    elseif floor(y + r) > size(org,2)
+        temp_particle = org(1 : 1+r, floor(y-r) : size(org,2));
+    else
+        temp_particle = org(1: 1+r, floor(y-r) : floor(y + r));
+    end
+elseif floor(x + r) > size(org,1)
+     if floor(y-r) < 1
+        temp_particle = org(floor(x-r) : size(org,1), 1 : 1+r);
+    elseif floor(y + r) > size(org,2)
+        temp_particle = org(floor(x-r) : size(org,1), floor(y-r) : size(org,2));
+    else
+        temp_particle = org(floor(x-r) : size(org,1), floor(y-r) : floor(y + r));
+     end
+else
+    if floor(y-r) < 1
+        temp_particle = org(floor(x-r) : floor(x + r), 1 : 1+r);
+    elseif floor(y + r) > size(org,2)
+        temp_particle = org(floor(x-r) : floor(x + r), floor(y-r) : size(org,2));
+    else
+        temp_particle = org( floor(x-r) : floor(x + r), floor(y-r) : floor(y + r));
     end
 end
-
-% tic;
-% if floor(x-r) < 1
-%     if floor(y-r) < 1
-%         temp_particle = org(1 : 1+r, 1 : 1+r);
-%     elseif floor(y + r) > size(org,2)
-%         temp_particle = org(1 : 1+r, floor(y-r) : size(org,2));
-%     else
-%         temp_particle = org(1: 1+r, floor(y-r) : floor(y + r));
-%     end
-% elseif floor(x + r) > size(org,1)
-%      if floor(y-r) < 1
-%         temp_particle = org(floor(x-r) : size(org,1), 1 : 1+r);
-%     elseif floor(y + r) > size(org,2)
-%         temp_particle = org(floor(x-r) : size(org,1), floor(y-r) : size(org,2));
-%     else
-%         temp_particle = org(floor(x-r) : size(org,1), floor(y-r) : floor(y + r));
-%      end
-% else
-%     if floor(y-r) < 1
-%         temp_particle = org(floor(x-r) : floor(x + r), 1 : 1+r);
-%     elseif floor(y + r) > size(org,2)
-%         temp_particle = org(floor(x-r) : floor(x + r), floor(y-r) : size(org,2));
-%     else
-%         temp_particle = org( floor(x-r) : floor(x + r), floor(y-r) : floor(y + r));
-%     end
-% end
-% try
-%     thresh = graythresh(temp_particle/max(temp_particle(:)))*max(temp_particle(:));
-% catch
-%     thresh;
-% end
+try
+    thresh = graythresh(temp_particle/max(temp_particle(:)))*max(temp_particle(:));
+catch
+    thresh;
+end
 
 r = 0;
 outRule = [];
@@ -82,8 +84,10 @@ while any(theta(:,3)~=0)
         end
     end
     r = r+1;
-    if length(find(theta(:,3)==0)) > size(theta,1)/2
-        break;
+    if length(find(theta(:,3)==0)) <= size(theta,1)/2
+        tempReal = temp;
+    elseif length(find(theta(:,3)==0)) > size(theta,1)*0.75
+            break;
     end
     if r > 50
         pic_temp = zeros(size(org));
@@ -96,7 +100,7 @@ while any(theta(:,3)~=0)
     end
 end
 % toc;  
-temp = unique(temp,'rows');
+
 pic_temp = zeros(size(org));
 if any(size(temp)==0)
 %     thresh = thresh /2;
@@ -141,9 +145,15 @@ if any(size(temp)==0)
     X = 0; Y = 0; pa_size = 0;
     return;
 end
-ind_temp = sub2ind(size(org),temp(:,1),temp(:,2));
+tempReal = unique(tempReal,'rows');
+ind_temp1 = sub2ind(size(org),temp(:,1),temp(:,2));
+pic_temp(ind_temp1) = org(ind_temp1);
+ind_temp = sub2ind(size(org),tempReal(:,1),tempReal(:,2));
 pic_temp(ind_temp) = org(ind_temp);
-X = mean(temp(:,1).*org(ind_temp))/mean(org(ind_temp));
-Y = mean(temp(:,2).*org(ind_temp))/mean(org(ind_temp));
+X = mean(tempReal(:,1).*org(ind_temp))/mean(org(ind_temp));
+Y = mean(tempReal(:,2).*org(ind_temp))/mean(org(ind_temp));
+% plot(y,x,'r.');
+% plot(Y,X,'ro');
 pa_size = sqrt(length(temp(:,1)));
+
     
