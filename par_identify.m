@@ -1,11 +1,11 @@
-function [pos,r,img,num] = par_identify(img,theta, meanPic)
+function [pos,r,img,num] = par_identify(img, theta, meanPic)
 
     
 debug = 0;
 pos = [];
-num = 0;
 r = [];
 org = img;
+% img = img1;
 % img = deepImadjust(img);
 % img = deepImadjust(img,5);
 % img = deepImadjust(img,3);
@@ -21,17 +21,15 @@ threshold_org = max(max(img))*0.3;
 
 % threshold= threshold_org; %max(max(img))*0.27;
 threshold = graythresh(img/max(img(:)))*max(img(:));
-img(img<min(img(:))*1.1) = min(threshold,mean(org(:)));
+img(img<min(img(:))*1.1) = min(threshold,mean(img(:)));
 org = img;
 threshold = graythresh(img/max(img(:)))*max(img(:));
 ercount = 0;
-iter = 100;
-shift = (size(template)-1)/2;
-shift = shift(1);
-[a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
+
+[a,b] = hist(img(:)-meanPic(:),(0:min(threshold*2,max(org(:))*0.9)));
 % tic;
 iter = 50;
-while a(end)>40
+while a(end)>35
         img_conv = conv2(img,template,'same');
 %         img_conv = xcorr2(img,template);
         [x,y] = ind2sub(size(img_conv),find(img_conv == max(max(img_conv))));
@@ -60,7 +58,7 @@ while a(end)>40
             continue;
             
         end
-        if mod((size(pos,1)) ,50) == 1
+        if mod((size(pos,1)) ,100) == 1
             disp(size(pos,1));
         end
         
@@ -76,7 +74,7 @@ while a(end)>40
             break;
         end
     
-     [a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
+     [a,b] = hist(img(:)-meanPic(:),(0:min(threshold*2,max(org(:))*0.9)));
     
 %     disp(length(pos));
     if length(pos) < 200 && max(max(img)) <= threshold

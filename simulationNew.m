@@ -72,7 +72,7 @@ limit = 200;
 % up = up*500;
 % vp = vp*500;
 % load([resultPath, '\mat\trace_', int2str(start), '.mat']);
-for I = 196:start+70
+for I = 126:445
     load([resultPath, '\mat\trace_', int2str(I), '.mat']);
     frame_A = double(imread([picPath , pic(I).name]));
     xp = start_a(:,3);
@@ -136,7 +136,7 @@ for I = 196:start+70
 %             temp = [temp,[xp(J),yp(J)]];
 %         end
 %     end
-    D = corDemension(x,y,xp,yp,0.002);
+    D = corDemension(x,y,xp,yp,0.001);
 %     st = strain(x,y,u,v);
 %     XP=[XP,xp];
 %     YP = [YP,yp];

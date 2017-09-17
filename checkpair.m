@@ -296,9 +296,9 @@ fclose(fp);
 % DPT{pic_num-start+1} = sqrt(dx.^2 + dy.^2);
 % savetemp = [a(:,[1,2]);
 
-if pic_num == 451
-disp(length(a));
-end
+% if pic_num == 451
+% disp(length(a));
+% end
 % imshow(uint16(frame_A*20));
 % plot(points_A(:,2),points_A(:,1),'r.')
 
