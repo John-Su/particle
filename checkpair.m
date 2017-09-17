@@ -96,7 +96,9 @@ end
 
 for pic_num = start:stopt %950:1000 
 %%
-
+% if pic_num == start
+%     pic_num = 146;
+% end
 % [xx,yy,vx1,vy1] = load_vec(pic_num+1, vecPath,CA,vec);
 %  DU = griddata(x1,y1,vx1,x+vx,y+vy,'cubic') - vx;
 %  DV = griddata(x1,y1,vy1,x+vx,y+vy,'cubic') - vy;
@@ -265,7 +267,7 @@ save([matPath,'\trace_', int2str(pic_num),'.mat'],'start_a');
 save([matPath,'\fpos_', int2str(pic_num),'.mat'],'f_pos');
 
 D = corDemension(xx,yy,a(:,3),a(:,2),0.001);
-fp = fopen([resultVepPath,sprintf('/vect_%d.dat',pic_num)],'w');
+fp = fopen([resultVepPath,sprintf('/vect_%04d.dat',pic_num)],'w');
 % fprintf(fid,'TITLE = "Re20000_D0_%d" VARIABLES = "x","y","Vx","Vy",\nZONE T="%d",I=%d,J=%d',K,K,len,hight);
 fprintf(fp,'TITLE = "Re20000_D0" VARIABLES = "x","y","Vx","Vy","D",\nZONE T = "1",I=%d,J=%d',vec_size,vec_size);
 for I = 1:vec_size^2

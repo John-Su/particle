@@ -1,10 +1,15 @@
 clear
 % rootPath = 'G:\0Experiments\particles\20170825\phase1_near\case4\speed1_6cm_80m\';
-rootPath = 'H:\0Experiment\case4\speed1_6cm_60m\';
+rootPath = 'G:\0Experiments\particles\20170825\phase1_near\speed1_80m\';
+% rootPath = 'H:\0Experiment\case4\speed1_6cm_60m\';
 % rootPath = 'H:\0Experiment\case1\';
 preCalibPath = 'G:\0Experiments\particles\20170825\phase1_near\case4\speed1_6cm_60m\';
-resultPath = [strrep(strrep(rootPath,':',''),'\',''),'\result'];
+resultPath = [rootPath,'result'];
 mkdir(resultPath);
+matPath = [resultPath,'/mat'];
+mkdir(matPath);
+resultVepPath = [resultPath,'/vec'];
+mkdir(resultVepPath);
 f = dir(rootPath);
 for I = 1:length(f)
     if ~isempty(strfind(f(I).name,'PIV')) && f(I).isdir == 1
@@ -67,8 +72,9 @@ limit = 200;
 % up = up*500;
 % vp = vp*500;
 % load([resultPath, '\mat\trace_', int2str(start), '.mat']);
-for I = start:start+100
+for I = 196:start+70
     load([resultPath, '\mat\trace_', int2str(I), '.mat']);
+    frame_A = double(imread([picPath , pic(I).name]));
     xp = start_a(:,3);
     yp = start_a(:,2);
     if ~isempty(intersect(find(xp==0), find(yp==0)))
@@ -141,7 +147,7 @@ for I = start:start+100
 
     m = sqrt(size(x,1));
     n=m;
-    fp = fopen([resultPath,sprintf('/new_vect_%d.dat',I)],'w');
+    fp = fopen([resultPath,sprintf('/new_vect_%04d.dat',I)],'w');
     fprintf(fp,'TITLE = "Re20000_D0_%d" VARIABLES = "x","y","Vx","Vy","D",\nZONE T="%d",I=%d,J=%d',I,I,m,n);
     X = reshape(x,m*n,1);
     Y = reshape(y,m*n,1);

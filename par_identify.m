@@ -30,6 +30,7 @@ shift = (size(template)-1)/2;
 shift = shift(1);
 [a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
 % tic;
+iter = 50;
 while a(end)>40
         img_conv = conv2(img,template,'same');
 %         img_conv = xcorr2(img,template);
@@ -65,8 +66,14 @@ while a(end)>40
         
         img = img-pic_temp;
         if w_size>=1 && org(floor(X),floor(Y)) - meanPic(floor(X),floor(Y)) > threshold
+            iter = 50;
             pos = [pos;[X,Y]];
             r = [r;w_size];
+        else
+            iter = iter -1;
+        end
+        if iter < 1
+            break;
         end
     
      [a,b] = hist(img(:)-meanPic(:),(0:threshold*2));
