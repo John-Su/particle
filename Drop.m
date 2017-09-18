@@ -51,9 +51,12 @@ catch
     thresh;
 end
 
-r = 0;
+r = 1;
 outRule = [];
 % 确定粒子大小
+
+edges = [];
+temp = [x,y];
 while any(theta(:,3)~=0)
     for I = 1:360
         if theta(I,3) == 1 
@@ -65,10 +68,12 @@ while any(theta(:,3)~=0)
             end
             if (X > size(org,1) || Y > size(org,2) || X < 1 || Y < 1)
                 temp = [temp;[max(min(X,size(org,1)),1),max(min(Y,size(org,2)), 1)]];
+                edges(I,:) = [max(min(X,size(org,1)),1),max(min(Y,size(org,2)), 1)];
                 theta(I,3) = 0;
             elseif org(X,Y) >= thresh 
                 theta(I,2) = r;
                 temp = [temp;[X,Y]];
+                edges(I,:) = [X,Y];
             else
                 outRule = [outRule,[X,Y]];
                 theta(I,3) = 0;
@@ -83,12 +88,21 @@ while any(theta(:,3)~=0)
             outRule = [outRule, [X,Y]];
         end
     end
-    r = r+1;
-    if length(find(theta(:,3)==0)) <= size(theta,1)/2
-        tempReal = temp;
-    elseif length(find(theta(:,3)==0)) > size(theta,1)*0.75
-            break;
+    
+    
+    temp = unique(temp,'rows');
+    try
+      dt = DelaunayTri(temp);
+      pt = convexHull(dt);
+    catch
+         temp = [];
+         break;
     end
+    temp_edges = unique(edges,'rows');
+    if abs(length(pt)-length(temp_edges)) > 0.3 * length(temp_edges)
+        break;
+    end
+    r = r+1;
     if r > 50
         pic_temp = zeros(size(org));
         ind_temp = sub2ind(size(org),temp(:,1),temp(:,2));
@@ -99,6 +113,8 @@ while any(theta(:,3)~=0)
         return;
     end
 end
+
+
 % toc;  
 
 pic_temp = zeros(size(org));
@@ -145,13 +161,11 @@ if any(size(temp)==0)
     X = 0; Y = 0; pa_size = 0;
     return;
 end
-tempReal = unique(tempReal,'rows');
-ind_temp1 = sub2ind(size(org),temp(:,1),temp(:,2));
-pic_temp(ind_temp1) = org(ind_temp1);
-ind_temp = sub2ind(size(org),tempReal(:,1),tempReal(:,2));
+
+ind_temp = sub2ind(size(org),temp(:,1),temp(:,2));
 pic_temp(ind_temp) = org(ind_temp);
-X = mean(tempReal(:,1).*org(ind_temp))/mean(org(ind_temp));
-Y = mean(tempReal(:,2).*org(ind_temp))/mean(org(ind_temp));
+X = mean(temp(:,1).*org(ind_temp))/mean(org(ind_temp));
+Y = mean(temp(:,2).*org(ind_temp))/mean(org(ind_temp));
 % plot(y,x,'r.');
 % plot(Y,X,'ro');
 pa_size = sqrt(length(temp(:,1)));
