@@ -1,4 +1,4 @@
-function [pic_temp,X,Y,pa_size] = Drop(org,img,x,y,thresh,theta)
+function [pic_temp,X,Y,pa_size] = Dropbackup(org,img,x,y,thresh,theta)
 assert(size(theta,1) == 360 && size(theta,2) == 3);
 r = 15;
 temp = [];

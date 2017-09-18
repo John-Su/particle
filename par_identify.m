@@ -37,7 +37,7 @@ while a(end)>35
 %         plot(y,x,'ro')
         [x,y] = clean(x,y,img);
 %         [pic_temp,X,Y,w_size] = Flmax(img,x,y,threshold,template);
-        [pic_temp,X,Y,w_size] = Drop(org,img,x,y,threshold,theta);
+        [pic_temp,X,Y,w_size] = Dropbackup(org,img,x,y,threshold,theta);
         if debug
             plot(y,x,'ro');
             plot(Y,X,'go');
